@@ -3,6 +3,7 @@ import { ImageContainer, SuccessContainer } from "../styles/pages/sucess";
 import { stripe } from "../../lib/stripe";
 import Stripe from "stripe";
 import Image from "next/image";
+import { GetServerSideProps } from "next";
 
 
 interface SuccessProps {
@@ -33,7 +34,17 @@ export default function Success({ customerName, product }: SuccessProps) {
     )
 }
 
-export const getServerSideProps = async ({ query, params }) => {
+export const getServerSideProps: GetServerSideProps = async ({ query, params }) => {
+
+    if (!query.session_id) {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: false,
+            }
+        }
+    }
+
     const sessionId = String(query.session_id);
 
     const session = await stripe.checkout.sessions.retrieve(sessionId, { 
